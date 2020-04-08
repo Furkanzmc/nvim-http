@@ -29,22 +29,32 @@ if !exists('http_client_preserve_responses')
     let g:http_client_preserve_responses = 0
 endif
 
-function! http_client#do_request()
+function! s:run_python(type, args)
     if has('python')
-        command! -nargs=1 Python python <args>
-        command! -nargs=1 Pyfile pyfile <args>
+        if a:type == "pyfile"
+            execute ":pyfile " . a:args
+        else
+            execute ":python " . a:args
+        endif
     elseif has('python3')
-        command! -nargs=1 Python python3 <args>
-        command! -nargs=1 Pyfile py3file <args>
+        if a:type == "pyfile"
+            execute ":py3file " . a:args
+        else
+            execute ":python3 " . a:args
+        endif
     else
-        echo 'Error: this plugin requires vim compiled with python support.'
+        echohl ErrorMsg
+        echomsg 'Error: this plugin requires vim compiled with python support.'
+        echohl None
         finish
     endif
+endfunction
 
+function! http_client#do_request()
     if !s:initialized_client
         let s:initialized_client = 1
-        execute 'Pyfile ' . s:script_path . '/http_client.py'
+        call <SID>run_python("pyfile", s:script_path . '/http_client.py')
     endif
 
-    Python do_request_from_buffer()
+    call <SID>run_python("python", "do_request_from_buffer()")
 endfunction
