@@ -1,24 +1,33 @@
-# vim-http-client
+# nvim-http
 
-Make HTTP requests from Vim with the HTTP format you already know, rather than wrestling with `curl -X POST -b cookie=$1 -F csrf_token=$2 -F "request={\"user_id\":123}" http://example.org`! Then parse the results right in Vim, syntax highlighted the way you expect!
+Make HTTP requests from Vim with the HTTP format you already know, rather than wrestling with
+`curl -X POST -b cookie=$1 -F csrf_token=$2 -F "request={\"user_id\":123}" http://example.org`!
+Then parse the results right in Vim, syntax highlighted the way you expect!
 
-![Demo](https://raw.githubusercontent.com/aquach/vim-http-client/master/examples/demo.gif)
+![Demo](https://raw.githubusercontent.com/furkanzmc/nvim-http/master/examples/demo.gif)
 
 See `examples/examples.txt` for other examples.
 
 ## Installation
 
-vim-http-client requires Vim compiled with python support and the [python `requests` library](http://docs.python-requests.org/en/latest/).
+nvim-http requires NeoVim compiled with python support and the
+[python `requests` library](http://docs.python-requests.org/en/latest/).
 
-You likely have Python support, but you can check with `vim --version | grep +python`. MacVim comes with Python support.
+You likely have Python support, but you can check with `nvim --version | grep +python`.
 
-To check if you have the `requests` library, try `python -c 'import requests'`. If you get an error, try `pip install requests` to get the library. Many distros ship Python support with Vim and the `requests` library with Python.
+To check if you have the `requests` library, try `python -c 'import requests'`.  If you get an
+error, try `pip install requests` to get the library.  Many distros ship Python support with Vim
+and the `requests` library with Python.
 
-Once you have these, use your favorite Vim plugin manager to install `aquach/vim-http-client`, or copy `plugin` and `doc` into your `.vim` folder.
+Once you have these, use your favorite NeoVim plugin manager to install `furkanzmc/nvim-http`, or
+copy `plugin` and `doc` into your `.vim` folder.
 
 ## Usage
 
-Put your cursor anywhere in a newline-delimited block of text and hit `<Leader>tt`. `vim-http-client` will parse the text into a HTTP request, execute it, and display its results will appear in a split. You can also directly invoke the HTTP client with `:HTTPClientDoRequest<cr>`. The format mirrors HTTP's format:
+Put your cursor anywhere in a newline-delimited block of text and hit `<leader>tt`. `nvim-http` will
+parse the text into a HTTP request, execute it, and display its results will appear in a split.
+You can also directly invoke the HTTP client with `:HTTPClientDoRequest<cr>`. The format mirrors
+HTTP's format:
 
 ```
 # Comments start with #.
@@ -39,7 +48,8 @@ Put your cursor anywhere in a newline-delimited block of text and hit `<Leader>t
 <body>
 ```
 
-Depending on where you put your cursor, the first or second request will execute. You can also substitute variables anywhere in the request:
+Depending on where you put your cursor, the first or second request will execute. You can also
+substitute variables anywhere in the request:
 
 ```
 # Second request.
@@ -51,7 +61,9 @@ POST http://httpbin.org/post
 }
 ```
 
-Each variable lives in a separate commented line. Variables beginning with `:` are request variables only considered in the request block they live in. Variables beginning with `$` are global variables that affect all requests in the entire buffer. Local variables always override global variables.
+Each variable lives in a separate commented line. Variables beginning with `:` are request variables
+only considered in the request block they live in. Variables beginning with `$` are global variables
+that affect all requests in the entire buffer. Local variables always override global variables.
 
 ```
 # $endpoint = http://httpbin.org
@@ -75,9 +87,11 @@ If you'd like to pass form-encoded data, set your body like this:
 <key-n>=<value-n>
 ```
 
-You can also send files using absolute path to file: `!file(PATH_TO_FILE)` or by simply providing it's content: `!content(my file content)`.
+You can also send files using absolute path to file: `!file(PATH_TO_FILE)` or by simply providing
+it's content: `!content(my file content)`.
 
-Example:
+**Example**:
+
 ```
 POST http://httpbin.org/post
 foo=vim rocks
@@ -85,41 +99,50 @@ bar=!file(/tmp/my_file.txt)
 baz=!content(sample content)
 ```
 
-
-
 See `examples/examples.txt` for more examples.
 
-The output appears in a new split. Based on the `Content-Type` header of the HTTP response, vim-http-client chooses a filetype for syntax highlighting. It currently supports XML, JSON, and HTML; all others will get `ft=text`.
+The output appears in a new split. Based on the `Content-Type` header of the HTTP response,
+nvim-http chooses a filetype for syntax highlighting. It currently supports XML, JSON, and HTML;
+all others will get `ft=text`.
 
 ## Configuration
 
-#### g:http_client_bind_hotkey (default 1)
+### g:nvim_http_json_escape_utf (default 1)
 
-Controls whether or not `<Leader>tt` will run the HTTP client. Regardless of the setting, vim-http-client will not overwrite your existing `<Leader>tt` mapping if it exists.
+By default json.dumps will escape any utf8 characters beyond ascii range. This option (if set to 0)
+allows you to get the actual special characters instead of \uxxxx encoded ones.
 
-#### g:http_client_json_ft (default 'javascript')
+### g:nvim_http_result_vsplit (default 1)
 
-Sets the vim filetype when vim-http-client detects a JSON response. Though JSON-specific syntax highlighting like [vim-json](https://github.com/elzr/vim-json) provides prettier highlighting than the default Javascript highlighting, Javascript highlighting comes with Vim and is therefore a safer default. Use this setting to configure the filetype to your liking.
+By default the request result appears in a vertical split. Setting this option to 0 displays the
+result in a horizontal split.
 
-#### g:http_client_json_escape_utf (default 1)
+### g:nvim_http_focus_output_window (default 1)
 
-By default json.dumps will escape any utf8 characters beyond ascii range. This option (if set to 0) allows you to get the actual special characters instead of \uxxxx encoded ones.
+By default the focus will go to the output window. If set to 0 the focus will return to the window
+with request definitions.
 
-#### g:http_client_result_vsplit (default 1)
+### g:nvim_http_preserve_responses (default 0)
 
-By default the request result appears in a vertical split. Setting this option to 0 displays the result in a horizontal split.
+By default responses will be written to the output buffer replacing any previous response. Setting
+this option to 1 will preserve previous responses, adding the latest response to the top of the buffer.
 
-#### g:http_client_focus_output_window (default 1)
+### Events
 
-By default the focus will go to the output window. If set to 0 the focus will return to the window with request definitions.
+`NvimHttpRequestStarted` and `NvimHttpRequestEnded` events are sent by this plugin.
+`NvimHttpRequestInProgress()` and `g:nvim_http_request_in_progress` are used to report back if a
+request is in progress.  This can be used to indicate the request progress in the statusline.
 
-#### g:http_client_verify_ssl (default 1)
+```vim
+if exists(":SendHttpRequest") > 0
+    let l:http_in_progress = get(g:, "nvim_http_request_in_progress", v:false)
+    if l:http_in_progress
+        let l:status .= s:get_color(l:active, 'Special', 'Comment')
+        let l:status .= " [Http] "
+    endif
+endif
 
-By default requests will verify SSL certificates for HTTPS endpoints. Setting this option to 0 disables SSL verification which allows requests to sites using self-signed certificates, for example.
-
-#### g:http_client_preserve_responses (default 0)
-
-By default responses will be written to the output buffer replacing any previous response. Setting this option to 1 will preserve previous responses, adding the latest response to the top of the buffer.  
+```
 
 ## Contributing
 

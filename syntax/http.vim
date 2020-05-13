@@ -1,34 +1,38 @@
-" Initial code taken from: https://github.com/nicwest/vim-http/blob/master/syntax/http.vim
-"
-if version < 600
-    syntax clear
-elseif exists("b:current_syntax")
+" Initial code taken from:
+" https://github.com/nicwest/vim-http/blob/master/syntax/http.vim
+
+if exists("b:current_syntax")
     finish
 endif
 
-let s:cpo_save = &cpo
-set cpo&vim
+syn keyword HttpMethod  OPTIONS GET HEAD POST PUT DELETE TRACE CONNECT PATCH contained
+syn match HttpVariable '\$[aA-zZ]\w\+'
+syn match HttpPayloadVariable ':[aA-zZ]\w\+'
+syn match HttpUrl  '\(https\|http\)\?:\/\/\(\w\+\(:\w\+\)\?@\)\?\([A-Za-z][-_0-9A-Za-z]*\.\)\{1,}\(\w\{2,}\.\?\)\{1,}\(:[0-9]\{1,5}\)\?\S*'
+syn match HttpComment '^# .*$' contains=HttpVariable,HttpPayloadVariable,HttpUrl
 
-syn keyword httpMethod  OPTIONS GET HEAD POST PUT DELETE TRACE CONNECT PATCH contained
+syn match HttpProto 'HTTP/[0-9.]\+' contained
+syn match HttpStatusCode '[0-9]\{3\}' contained
+syn match HttpStatus '[0-9]\{3\} .*$' contained contains=HttpStatusCode
+syn match HttpHeaderKey '^[A-Z][A-Za-z0-9\-]*:' contained
+syn match HttpURILine '^\(OPTIONS\|GET\|HEAD\|POST\|PUT\|DELETE\|TRACE\|CONNECT\|PATCH\)\( .*\)\?\(HTTP/[0-9.]\+\)\?$'  contains=HttpMethod,HttpProto,HttpVariable,HttpUrl contained
+syn match HttpResponseLine '^HTTP/[0-9.]\+ [0-9]\{3\}.*$' contains=HttpProto,HttpStatus contained
+syn match HttpHeaderLine '^[A-Z][A-Za-z0-9\-]*: .*$' contains=HttpHeaderKey contained
 
-syn match httpProto         'HTTP/[0-9.]\+' contained
-syn match httpStatusCode    '[0-9]\{3\}' contained
-syn match httpStatus        '[0-9]\{3\} .*$' contained contains=httpStatusCode
-syn match httpHeaderKey     '^[A-Z][A-Za-z0-9\-]*:' contained
-syn match httpURILine       '^\(OPTIONS\|GET\|HEAD\|POST\|PUT\|DELETE\|TRACE\|CONNECT\|PATCH\)\( .*\)\?\(HTTP/[0-9.]\+\)\?$'  contains=httpMethod,httpProto contained
-syn match httpResponseLine  '^HTTP/[0-9.]\+ [0-9]\{3\}.*$' contains=httpProto,httpStatus contained
-syn match httpHeaderLine    '^[A-Z][A-Za-z0-9\-]*: .*$' contains=httpHeaderKey contained
+syn region HttpHeader start='^\(OPTIONS\|GET\|HEAD\|POST\|PUT\|DELETE\|TRACE\|CONNECT\|PATCH\)\( .*\)\?\(HTTP/[0-9.]\+\)\?$' end='\n\s*\n' contains=HttpURILine,HttpHeaderLine
+syn region HttpHeader start='^HTTP/[0-9.]\+ [0-9]\{3\}.*$' end='\n\s*\n' contains=HttpResponseLine,HttpHeaderLine
 
-syn region httpHeader       start='^\(OPTIONS\|GET\|HEAD\|POST\|PUT\|DELETE\|TRACE\|CONNECT\|PATCH\)\( .*\)\?\(HTTP/[0-9.]\+\)\?$' end='\n\s*\n' contains=httpURILine,httpHeaderLine
-syn region httpHeader       start='^HTTP/[0-9.]\+ [0-9]\{3\}.*$' end='\n\s*\n' contains=httpResponseLine,httpHeaderLine
+hi link HttpMethod Type
+hi link HttpProto  Statement
+hi link HttpHeaderKey Identifier
+hi link HttpStatus String
+hi link HttpStatusCode Number
+hi link HttpVariable Identifier
+hi link HttpPayloadVariable Identifier
+hi link HttpUrl String
+hi link HttpComment Comment
 
-hi link httpMethod      Type
-hi link httpProto       Statement
-hi link httpHeaderKey   Identifier
-hi link httpStatus      String
-hi link httpStatusCode      Number
+call matchadd('Conceal', '^#\ \ze\$', 10, -1, {'conceal':' '})
+call matchadd('Conceal', '^#\ \ze\:', 10, -1, {'conceal':' '})
 
 let b:current_syntax = 'http'
-
-let &cpo = s:cpo_save
-unlet s:cpo_save
