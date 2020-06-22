@@ -219,7 +219,7 @@ class HttpPlugin(object):
             response_body.split("\n")
             + ["", "// Status Code: {}".format(response.status_code)]
             + ["// %s: %s" % (k, v) for k, v in response.headers.items()]
-            + ["-----"]
+            + ["// -----"]
             + [
                 "// Request Start Date: {}".format(
                     request_start_date.isoformat()
