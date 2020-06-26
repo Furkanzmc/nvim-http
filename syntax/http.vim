@@ -32,7 +32,4 @@ hi link HttpPayloadVariable Identifier
 hi link HttpUrl String
 hi link HttpComment Comment
 
-call matchadd('Conceal', '^#\ \ze\$', 10, -1, {'conceal':' '})
-call matchadd('Conceal', '^#\ \ze\:', 10, -1, {'conceal':' '})
-
 let b:current_syntax = 'http'
