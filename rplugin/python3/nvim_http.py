@@ -263,6 +263,7 @@ class HttpPlugin(object):
 
             self.vim.command("rightbelow {} {}".format(split_cmd, BUFFER_NAME))
             self.vim.command("setlocal buftype=nofile nospell")
+            self.vim.command("setlocal foldmethod=indent")
         else:
             self.vim.command("{}wincmd w".format(existing_buffer_window))
 
