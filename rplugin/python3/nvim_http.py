@@ -52,6 +52,20 @@ def find_block(buf, line_num):
     return buf[block_start : block_end + 1]
 
 
+def on_error(message, ex):
+    display = [message] + ["Response: {0}".format(ex.response)]
+    if ex.request:
+        display = display + (
+            ["Method:   {0}".format(ex.request.method)]
+            + ["Path:     {0}".format(ex.request.path_url)]
+            + ["Headers:  {0}".format(ex.request.headers)]
+            + ["Body:     {0}".format(ex.request.body)]
+        )
+
+    content_type = "text/plain"
+    return display, content_type
+
+
 @pynvim.plugin
 class HttpPlugin(object):
     def __init__(self, vim):
@@ -95,7 +109,9 @@ class HttpPlugin(object):
             self.log_error("Connection timed out.")
             return
         except (exceptions.RequestException,) as ex:
-            error_msg: str = ex.response.content if ex.response else "Unspecified."
+            error_msg: str = (
+                ex.response.content if ex.response else "Unspecified."
+            )
             self.open_scratch_buffer(
                 "Error sending request: {}".format(error_msg), "text"
             )
@@ -187,19 +203,31 @@ class HttpPlugin(object):
             data = None
 
         request_start_date: datetime = datetime.now()
-        response = requests.request(
-            method,
-            url,
-            headers=headers,
-            data=data,
-            files=files,
-            json=json_data,
-        )
+        try:
+            response = requests.request(
+                method,
+                url,
+                headers=headers,
+                data=data,
+                files=files,
+                json=json_data,
+            )
+        except requests.exceptions.Timeout as ex:
+            display, content_type = on_error("Timeout Error", ex)
+            return display, content_type
+        except requests.exceptions.TooManyRedirects as ex:
+            display, content_type = on_error("Too many redirects", ex)
+            return display, content_type
+        except requests.exceptions.RequestException as ex:
+            display, content_type = on_error(
+                "{} Error Ocurred".format(ex.__class__.__name__), ex
+            )
+            return display, content_type
+
         request_end_date: datetime = datetime.now()
         request_duration: timedelta = request_end_date - request_start_date
 
         content_type = response.headers.get("Content-Type", "").split(";")[0]
-
         response_body = response.text
         if JSON_REGEX.search(content_type):
             content_type = "application/json"
