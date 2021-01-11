@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 # pynvim
 import pynvim
 from pynvim import Nvim
+from pynvim.api.window import Window
 
 # requests
 import requests
@@ -79,7 +80,7 @@ class HttpPlugin(object):
 
     @pynvim.command("SendHttpRequest", sync=False)
     def command_handler(self):
-        win: int = self.vim.current.window
+        win: Window = self.vim.current.window
         line_num: int = win.cursor[0] - 1
         block = find_block(win.buffer, line_num)
 
