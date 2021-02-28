@@ -14,10 +14,10 @@ syn match HttpComment '^# .*$' contains=HttpVariable,HttpPayloadVariable,HttpUrl
 syn match HttpProto 'HTTP/[0-9.]\+' contained
 syn match HttpStatusCode '[0-9]\{3\}' contained
 syn match HttpStatus '[0-9]\{3\} .*$' contained contains=HttpStatusCode
-syn match HttpHeaderKey '^[A-Z][A-Za-z0-9\-]*:' contained
+syn match HttpHeaderKey '^[aA-zZ][A-Za-z0-9\-]*:' contained
 syn match HttpURILine '^\(OPTIONS\|GET\|HEAD\|POST\|PUT\|DELETE\|TRACE\|CONNECT\|PATCH\)\( .*\)\?\(HTTP/[0-9.]\+\)\?$'  contains=HttpMethod,HttpProto,HttpVariable,HttpUrl contained
 syn match HttpResponseLine '^HTTP/[0-9.]\+ [0-9]\{3\}.*$' contains=HttpProto,HttpStatus contained
-syn match HttpHeaderLine '^[A-Z][A-Za-z0-9\-]*: .*$' contains=HttpHeaderKey contained
+syn match HttpHeaderLine '^[aA-zZ][A-Za-z0-9\-]*: .*$' contains=HttpHeaderKey contained
 
 syn region HttpHeader start='^\(OPTIONS\|GET\|HEAD\|POST\|PUT\|DELETE\|TRACE\|CONNECT\|PATCH\)\( .*\)\?\(HTTP/[0-9.]\+\)\?$' end='\n\s*\n' contains=HttpURILine,HttpHeaderLine
 syn region HttpHeader start='^HTTP/[0-9.]\+ [0-9]\{3\}.*$' end='\n\s*\n' contains=HttpResponseLine,HttpHeaderLine
