@@ -32,4 +32,8 @@ hi link HttpPayloadVariable Identifier
 hi link HttpUrl String
 hi link HttpComment Comment
 
+if exists("*SyntaxRange#Include")
+    call SyntaxRange#Include("{", "}", "json", "NonText")
+end
+
 let b:current_syntax = 'http'
